@@ -101,15 +101,10 @@ class Pendio:
         return fig
 
     def grafico_FvsZ_dw(self, dw_array):
-        """
-        Genera un grafico interattivo F(Z) per diversi valori di profondità della falda dw,
-        con indicazione della profondità del substrato impermeabile (H), se specificata.
-        """
         fig = go.Figure()
 
         for dw_val in dw_array:
             tau_beta, sigma_beta, u0 = self.calcola_componenti(dw_override=dw_val)
-
             for c_val in self.c_:
                 for phi_val in self.phi_rad:
                     F = self.calcola_F(c_val, phi_val, tau_beta, sigma_beta, u0)
@@ -119,6 +114,17 @@ class Pendio:
                         mode='lines+markers',
                         name=f"dw={dw_val} m"
                     ))
+
+                    if self.H is not None:
+                        interp_F = interp1d(self.Z, F, kind='linear', fill_value='extrapolate')
+                        F_H = float(interp_F(self.H))
+                        fig.add_trace(go.Scatter(
+                            x=[self.H],
+                            y=[F_H],
+                            mode='markers',
+                            marker=dict(size=10, color='red', symbol='diamond'),
+                            showlegend=False
+                        ))
 
         shapes = []
         if self.H is not None:
@@ -134,6 +140,13 @@ class Pendio:
                     'dash': 'dash'
                 }
             })
+            fig.add_trace(go.Scatter(
+                x=[None],
+                y=[None],
+                mode='lines',
+                line=dict(color='red', width=2, dash='dash'),
+                name='Z=H'
+            ))
 
         fig.update_layout(
             title="Coefficiente di Sicurezza F(Z) per diversi livelli della falda (dw)",
@@ -145,6 +158,8 @@ class Pendio:
         )
 
         return fig
+
+
 
     def analisi_intervento(self, S, H0, D):
         """
