@@ -3,7 +3,7 @@
 Questo progetto contiene i materiali di supporto all’articolo:
 
 📄 **Dimensionamento di Massima delle Trincee Drenanti**  
-👉 [Leggi l’articolo completo sul sito](https://franciscojmendez.it)
+👉 [Leggi l’articolo completo sul sito](https://www.franciscojmendez.com/trincee-drenanti-dimensionamento-massima/)
 
 ---
 
@@ -24,7 +24,7 @@ Il progetto implementa un approccio semplificato per valutare l’efficienza idr
 
 Sono considerati:
 
-- parametri adimensionali \( S/H_0 \), \( B/H_0 \), \( H/H_0 \);
+- parametri adimensionali S/H₀, B/H₀, H/H₀;
 - l’efficienza idraulica media e puntuale;
 - la relazione tra incremento di stabilità e dissipazione della pressione interstiziale.
 
@@ -35,7 +35,7 @@ Sono considerati:
 Il notebook mostra come:
 
 - calcolare l’efficienza in funzione della geometria;
-- stimare \( \Delta F(t) \) in funzione di \( E_{\text{med}}(t) \);
+- stimare DeltaF(t) in funzione di E_med(t);
 - visualizzare i risultati con grafici e formule.
 
 👉 Il notebook può essere **eseguito e modificato liberamente**, ed eventualmente **esportato in PDF** per essere allegato a relazioni tecniche, report o documentazione di progetto.
