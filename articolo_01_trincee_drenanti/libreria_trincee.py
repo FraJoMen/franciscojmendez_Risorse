@@ -63,7 +63,7 @@ class Pendio:
         denominatore = np.maximum(tau_beta, 1e-6)  # Evita divisioni per 0
         return numeratore / denominatore
 
-    def grafico_interattivo_F(self):
+    def grafico_F_c_phi(self):
         """
         Genera un grafico interattivo F(Z) per diversi valori di c_ e phi'.
         """

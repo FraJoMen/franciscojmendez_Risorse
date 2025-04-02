@@ -22,10 +22,7 @@ franciscojmendez_Risorse/
 ├── articolo_01_trincee_drenanti/
 │   → Dimensionamento di massima delle trincee drenanti
 │
-├── articolo_02_saga_corrivazione/
-│   → Calcolo del tempo di corrivazione con SAGA GIS
-│
-├── articolo_03_.....
+├── articolo_02_.....
 │
 └── README.md
 ```
