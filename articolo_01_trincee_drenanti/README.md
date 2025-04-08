@@ -7,7 +7,7 @@ Questo progetto contiene i materiali di supporto all’articolo:
 
 ---
 
-## 📚 Contenuti
+## 📖 Contenuti
 
 La cartella include:
 
@@ -73,7 +73,7 @@ Chiunque può usarlo, modificarlo e redistribuirlo, purché mantenga la stessa l
 
 ---
 
-## 📜 Bibliografia
+## 📚  Bibliografia
 
 1. **Desideri A., Miliziano S., Rampello S. (1997).** *Drenaggi a gravità per la stabilizzazione dei pendii*. Argomenti di Ingegneria Geotecnica, Hevelius Edizioni, Benevento. [Link al documento PDF](https://www.ordineingegnerilecce.it/wp-content/uploads/2021/06/DRENAGGIweb-1.pdf)
 2. **Ordine dei Geologi della Sardegna (s.d.).** *La progettazione delle trincee drenanti per la stabilizzazione dei pendii*. Miscellanea Sarda. [Link al documento PDF](https://www.geologi.sardegna.it/fileadmin/ORGS/Miscellanea_Sarda/La_progettazione_delle_trincee_drenanti_per_la_stabilizzazione_dei_pendii.pdf)
