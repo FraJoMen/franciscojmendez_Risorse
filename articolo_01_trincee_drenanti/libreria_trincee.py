@@ -359,3 +359,87 @@ class Abachi:
         )
         
         fig.show()
+
+
+
+    def plot_singolo(self,n_value):
+        """
+        Traccia il grafico per un valore di n (1, 1.5, 2.5, 4.0)
+        per i vari valori di d (0.5, 1.0, 1.5, 2.0) separatamente.
+        """
+        # Creare un array di interpolazione più fine (100 punti tra 0.5 e 5.8)
+        x_interp = np.linspace(0.5, 5.8, 100)
+    
+        # Parametri di n con i rispettivi dati
+        parametri = {
+            "n=1.0": [
+                ("d=0.5", self.data_n1_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n1_d1, "S/H0", "efficienza")
+            ],
+            "n=1.5": [
+                ("d=0.5", self.data_n1p5_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n1p5_d1, "S/H0", "efficienza"),
+                ("d=1.5", self.data_n1p5_d1p5, "S/H0", "efficienza")
+            ],
+            "n=2.5": [
+                ("d=0.5", self.data_n2p5_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n2p5_d1, "S/H0", "efficienza"),
+                ("d=1.5", self.data_n2p5_d1p5, "S/H0", "efficienza"),
+                ("d=2.0", self.data_n2p5_d2p0, "S/H0", "efficienza")
+            ],
+            "n=4.0": [
+                ("d=0.5", self.data_n2p5_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n2p5_d1, "S/H0", "efficienza"),
+                ("d=1.5", self.data_n2p5_d1p5, "S/H0", "efficienza"),
+                ("d=2.0", self.data_n2p5_d2p0, "S/H0", "efficienza")
+            ]
+        }
+    
+        if n_value not in parametri:
+            raise ValueError(f"Valore di n non valido: {n_value}. Scegli tra 'n=1.0', 'n=1.5', 'n=2.5', 'n=4.0'.")
+    
+        dati = parametri[n_value]
+        fig = go.Figure()
+    
+        # Ciclo sui dati per ogni valore di d in ciascun n
+        for d_value, data, x_col, y_col in dati:
+            # Interpolazione dei dati
+            spline = CubicSpline(data[x_col], data[y_col])
+            efficienza = spline(x_interp)
+            
+            # Aggiungi la traccia al grafico
+            fig.add_trace(go.Scatter(x=x_interp, y=efficienza, mode='lines', name=f" {d_value}"))
+    
+        # Layout del grafico con font Roboto e legenda a destra
+        fig.update_layout(
+            title=f"Efficienza per {n_value}",
+            xaxis_title="S/H0",
+            yaxis_title="Efficienza",
+            template="plotly_white",
+            showlegend=True,
+            legend=dict(
+                orientation='h',   # Legenda orizzontale
+                x=1,               # Posizione a destra della legenda
+                xanchor='right',   # Ancoraggio al bordo destro
+                y=1.1,             # Posizionamento sopra il grafico
+                yanchor='bottom'   # Ancoraggio in basso della legenda
+            ),
+            font=dict(
+                family="Roboto",   # Font Roboto per tutte le scritte (compresi numeri, etichette, legenda, etc.)
+                size=14,           # Dimensione del font
+                color="black"      # Colore del testo
+            ),
+            margin=dict(
+                t=100,             # Maggior spazio sopra il grafico per il titolo
+                b=50,              # Margine inferiore
+                l=50,              # Margine sinistro
+                r=50               # Margine destro
+            )
+        )
+    
+        # Mostrare il grafico
+        fig.show()
+
+
+
+
