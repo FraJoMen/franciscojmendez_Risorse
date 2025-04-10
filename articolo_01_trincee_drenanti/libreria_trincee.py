@@ -160,7 +160,7 @@ class Pendio:
         return fig
 
 
-class Abachi:
+class AbachiEfficienza:
     def __init__(self):
         # Dati per n=1, d=0.5 e d=1
         self.data_n1_d0p5 = {
