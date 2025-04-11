@@ -520,12 +520,18 @@ class AbachiTemporali:
         
 
     def add_griglia_secondaria_y(self, fig, row, col, y_min=1e-3, y_max=1e1,
-                             color="rgba(200,200,200,0.2)", width=0.5):
-        esponenti = np.arange(np.floor(np.log10(y_min)), np.ceil(np.log10(y_max))).astype(int)
+                                 color="rgba(200,200,200,0.2)", width=0.5):
+        import numpy as np
+    
+        # Esponenti log base 10 tra y_min e y_max (senza sforare!)
+        e_min = int(np.floor(np.log10(y_min)))
+        e_max = int(np.floor(np.log10(y_max))) 
+    
+        esponenti = np.arange(e_min, e_max)
     
         for e in esponenti:
-            for m in range(2, 10):
-                y = m * np.power(10.0, e) 
+            for m in range(2, 10):  # Minor ticks: 2·10^e ... 9·10^e
+                y = m * np.power(10.0, e)
                 if y_min <= y <= y_max:
                     fig.add_shape(
                         type="line",
@@ -537,6 +543,7 @@ class AbachiTemporali:
                         row=row,
                         col=col
                     )
+
         
     def plot_abachi(self):
         fig = make_subplots(
@@ -568,12 +575,23 @@ class AbachiTemporali:
                             x=x_interp,
                             y=y_vals,
                             mode='lines',
-                            name=f"{tipo}, n={n_label.replace('p', '.')}, d={d.replace('p', '.')}",
+                            #name=f"{tipo}, n={n_label.replace('p', '.')}, d={d.replace('p', '.')}",
+                            name=f"{tipo}, n={n_label[1:].replace('p', '.')}, d={d.replace('p', '.')}",
                             hovertemplate="S/H₀: %{x:.2f}<br>T: %{y:.2e}<extra></extra>"
                         ),
                         row=r,
                         col=c
                     )
+    
+            # ✅ Griglia log secondaria con limiti fissi per ogni subplot
+            if (r, c) == (2, 2):  # T90 – n=2.5
+                y_min_plot = 1e-2
+                y_max_plot = 1e+1
+            else:
+                y_min_plot = 1e-3
+                y_max_plot = 1e+0
+    
+            self.add_griglia_secondaria_y(fig, r, c, y_min=y_min_plot, y_max=y_max_plot)
     
         fig.update_layout(
             title="Abachi Temporali",
@@ -586,6 +604,7 @@ class AbachiTemporali:
         )
     
         tickvals = [1e-3, 1e-2, 1e-1, 1e0, 1e1]
+        ticktext = [f"1e{int(np.log10(v))}" for v in tickvals]
     
         for r in [1, 2]:
             for c in [1, 2]:
@@ -600,16 +619,20 @@ class AbachiTemporali:
                     title_text="T50" if c == 1 else "T90",
                     tickmode="array",
                     tickvals=tickvals,
-                    tickformat=".0e",
+                    ticktext=ticktext,
                     ticks="outside",
                     ticklen=8,
                     showgrid=True,
                     gridcolor="lightgray",
+                    range=(
+                        [-3, -1] if (r == 1 and c == 1) else
+                        [-2,  0] if (r == 1 and c == 2) else
+                        [-3,  0] if (r == 2 and c == 1) else
+                        [-3,  0] if (r == 2 and c == 2) else None
+                    ),
                     row=r,
                     col=c
                 )
-                # ✅ Aggiungi la griglia secondaria vera
-                self.add_griglia_secondaria_y(fig, r, c)
-    
+       
         fig.show()
 
