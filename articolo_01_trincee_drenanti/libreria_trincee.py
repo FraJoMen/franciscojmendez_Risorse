@@ -360,6 +360,85 @@ class AbachiEfficienza:
         )
         
         fig.show()
+        
+    def plot_singolo(self,n_value):
+        """
+        Traccia il grafico per un valore di n (1, 1.5, 2.5, 4.0)
+        per i vari valori di d (0.5, 1.0, 1.5, 2.0) separatamente.
+        """
+        # Creare un array di interpolazione più fine (100 punti tra 0.5 e 5.8)
+        x_interp = np.linspace(0.5, 5.8, 100)
+    
+        # Parametri di n con i rispettivi dati
+        parametri = {
+            "n=1.0": [
+                ("d=0.5", self.data_n1_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n1_d1, "S/H0", "efficienza")
+            ],
+            "n=1.5": [
+                ("d=0.5", self.data_n1p5_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n1p5_d1, "S/H0", "efficienza"),
+                ("d=1.5", self.data_n1p5_d1p5, "S/H0", "efficienza")
+            ],
+            "n=2.5": [
+                ("d=0.5", self.data_n2p5_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n2p5_d1, "S/H0", "efficienza"),
+                ("d=1.5", self.data_n2p5_d1p5, "S/H0", "efficienza"),
+                ("d=2.0", self.data_n2p5_d2p0, "S/H0", "efficienza")
+            ],
+            "n=4.0": [
+                ("d=0.5", self.data_n2p5_d0p5, "S/H0", "efficienza"),
+                ("d=1.0", self.data_n2p5_d1, "S/H0", "efficienza"),
+                ("d=1.5", self.data_n2p5_d1p5, "S/H0", "efficienza"),
+                ("d=2.0", self.data_n2p5_d2p0, "S/H0", "efficienza")
+            ]
+        }
+    
+        if n_value not in parametri:
+            raise ValueError(f"Valore di n non valido: {n_value}. Scegli tra 'n=1.0', 'n=1.5', 'n=2.5', 'n=4.0'.")
+    
+        dati = parametri[n_value]
+        fig = go.Figure()
+    
+        # Ciclo sui dati per ogni valore di d in ciascun n
+        for d_value, data, x_col, y_col in dati:
+            # Interpolazione dei dati
+            spline = CubicSpline(data[x_col], data[y_col])
+            efficienza = spline(x_interp)
+            
+            # Aggiungi la traccia al grafico
+            fig.add_trace(go.Scatter(x=x_interp, y=efficienza, mode='lines', name=f" {d_value}"))
+    
+        # Layout del grafico con font Roboto e legenda a destra
+        fig.update_layout(
+            title=f"Abaco {n_value}",
+            xaxis_title="S/H0",
+            yaxis_title="Efficienza",
+            template="plotly_white",
+            showlegend=True,
+            legend=dict(
+                orientation='h',   # Legenda orizzontale
+                x=1,               # Posizione a destra della legenda
+                xanchor='right',   # Ancoraggio al bordo destro
+                y=1.1,             # Posizionamento sopra il grafico
+                yanchor='bottom'   # Ancoraggio in basso della legenda
+            ),
+            font=dict(
+                family="Roboto",   # Font Roboto per tutte le scritte (compresi numeri, etichette, legenda, etc.)
+                size=14,           # Dimensione del font
+                color="black"      # Colore del testo
+            ),
+            margin=dict(
+                t=100,             # Maggior spazio sopra il grafico per il titolo
+                b=50,              # Margine inferiore
+                l=50,              # Margine sinistro
+                r=50               # Margine destro
+            )
+        )
+    
+        # Mostrare il grafico
+        fig.show()
+
 
 #%%
 class AbachiTemporali:
@@ -635,4 +714,101 @@ class AbachiTemporali:
                 )
        
         fig.show()
+
+    def add_griglia_subplot(self, fig, y_min=1e-3, y_max=1e1,
+                                 color="rgba(200,200,200,0.2)", width=0.5):
+        e_min = int(np.floor(np.log10(y_min)))
+        e_max = int(np.floor(np.log10(y_max)))
+        for e in np.arange(e_min, e_max):
+            for m in range(2, 10):
+                y = m * np.power(10.0, e)
+                if y_min <= y <= y_max:
+                    fig.add_shape(
+                        type="line",
+                        x0=0, x1=1,
+                        y0=y, y1=y,
+                        line=dict(color=color, width=width),
+                        xref="x domain",
+                        yref="y"
+                    )
+
+
+    def get_y_limits(self, tipo, n_label):
+        if tipo == "T50" and n_label == "n1":
+            return 1e-3, 1e-1  # log10 → [–3, -1]
+        elif tipo == "T90" and n_label == "n1":
+            return 1e-2, 1e0  # log10 → [–2, 0]
+        else:  # Tutti gli altri
+            return 1e-3, 1e0  # log10 → [–3, 0]
+        
+    def plot_singolo(self, tipo, n_label, d_list=["0p5", "1p0", "1p5", "2p0"]):
+        fig = go.Figure()
+        x_interp = np.linspace(0.5, 6.0, 250)
+    
+        for d in d_list:
+            attr = f"data_{tipo}_{n_label}_d{d}"
+            if hasattr(self, attr):
+                data = getattr(self, attr)
+                x = data["S/H0"]
+                y = data["T"]
+                spline_log = CubicSpline(x, np.log10(y), extrapolate=False)
+                y_vals = 10 ** spline_log(x_interp)
+    
+                fig.add_trace(go.Scatter(
+                    x=x_interp,
+                    y=y_vals,
+                    mode="lines",
+                    name=f"d={d.replace('p', '.')}",
+                    hovertemplate="S/H₀: %{x:.2f}<br>T: %{y:.2e}<extra></extra>"
+                ))
+    
+        y_min_plot, y_max_plot = self.get_y_limits(tipo, n_label)
+        self.add_griglia_subplot(fig, y_min=y_min_plot, y_max=y_max_plot)
+    
+        tickvals = [1e-3, 1e-2, 1e-1, 1e0, 1e1]
+        ticktext = [f"1e{int(np.log10(v))}" for v in tickvals]
+    
+
+        fig.update_layout(
+            title=f"Abaco n={n_label[1:].replace('p', '.')}",
+            autosize=True,
+            height=None,
+            width=None,
+            template="plotly_white",
+            showlegend=True,
+            legend=dict(
+                orientation='h',   # Legenda orizzontale
+                x=1,
+                xanchor='right',
+                y=1.1,
+                yanchor='bottom'
+            ),
+            font=dict(
+                family="Roboto",
+                size=14,
+                color="black"
+            ),
+            margin=dict(t=100, b=50, l=50, r=50)
+        )
+
+    
+        fig.update_xaxes(title_text="S/H₀", tickformat=".2f")
+        fig.update_yaxes(
+            type="log",
+            title_text=tipo,
+            tickmode="array",
+            tickvals=tickvals,
+            ticktext=ticktext,
+            ticks="outside",
+            ticklen=8,
+            showgrid=True,
+            gridcolor="lightgray",
+            range=[np.log10(y_min_plot), np.log10(y_max_plot)],
+            fixedrange=True
+        )
+    
+        # Mostrare il grafico
+        fig.show()
+
+
 
