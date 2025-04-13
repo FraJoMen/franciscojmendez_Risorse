@@ -361,15 +361,9 @@ class AbachiEfficienza:
         
         fig.show()
         
-    def plot_singolo(self,n_value):
-        """
-        Traccia il grafico per un valore di n (1, 1.5, 2.5, 4.0)
-        per i vari valori di d (0.5, 1.0, 1.5, 2.0) separatamente.
-        """
-        # Creare un array di interpolazione più fine (100 punti tra 0.5 e 5.8)
+    def plot_singolo(self, n_value, export_html=False, filename="grafico.html"):
         x_interp = np.linspace(0.5, 5.8, 100)
     
-        # Parametri di n con i rispettivi dati
         parametri = {
             "n=1.0": [
                 ("d=0.5", self.data_n1_d0p5, "S/H0", "efficienza"),
@@ -395,21 +389,15 @@ class AbachiEfficienza:
         }
     
         if n_value not in parametri:
-            raise ValueError(f"Valore di n non valido: {n_value}. Scegli tra 'n=1.0', 'n=1.5', 'n=2.5', 'n=4.0'.")
+            raise ValueError(f"Valore di n non valido: {n_value}. Scegli tra {list(parametri.keys())}")
     
-        dati = parametri[n_value]
         fig = go.Figure()
     
-        # Ciclo sui dati per ogni valore di d in ciascun n
-        for d_value, data, x_col, y_col in dati:
-            # Interpolazione dei dati
+        for d_value, data, x_col, y_col in parametri[n_value]:
             spline = CubicSpline(data[x_col], data[y_col])
             efficienza = spline(x_interp)
-            
-            # Aggiungi la traccia al grafico
-            fig.add_trace(go.Scatter(x=x_interp, y=efficienza, mode='lines', name=f" {d_value}"))
+            fig.add_trace(go.Scatter(x=x_interp, y=efficienza, mode='lines', name=f"{d_value}"))
     
-        # Layout del grafico con font Roboto e legenda a destra
         fig.update_layout(
             title=f"Abaco {n_value}",
             xaxis_title="S/H0",
@@ -417,27 +405,49 @@ class AbachiEfficienza:
             template="plotly_white",
             showlegend=True,
             legend=dict(
-                orientation='h',   # Legenda orizzontale
-                x=1,               # Posizione a destra della legenda
-                xanchor='right',   # Ancoraggio al bordo destro
-                y=1.1,             # Posizionamento sopra il grafico
-                yanchor='bottom'   # Ancoraggio in basso della legenda
+                orientation='h',
+                x=1,
+                xanchor='right',
+                y=1.1,
+                yanchor='bottom'
             ),
-            font=dict(
-                family="Roboto",   # Font Roboto per tutte le scritte (compresi numeri, etichette, legenda, etc.)
-                size=14,           # Dimensione del font
-                color="black"      # Colore del testo
-            ),
-            margin=dict(
-                t=100,             # Maggior spazio sopra il grafico per il titolo
-                b=50,              # Margine inferiore
-                l=50,              # Margine sinistro
-                r=50               # Margine destro
-            )
+            font=dict(family="Roboto", size=14, color="black"),
+            margin=dict(t=140, b=50, l=50, r=50),
+            hovermode='closest'  # ✅ basta questo per interrogare singoli punti
+        )
+
+    
+        fig.update_xaxes(
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
         )
     
-        # Mostrare il grafico
-        fig.show()
+        fig.update_yaxes(
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
+        )
+    
+        if export_html:
+            fig.write_html(
+                filename,
+                include_plotlyjs="cdn",
+                config={
+                    "responsive": True,
+                    "displaylogo": False,
+                    "displayModeBar": True,
+                    "modeBarButtonsToAdd": ["hoverClosestCartesian"]
+                }
+            )
+            fig.show()
+        else:
+            fig.show()
+
 
 
 #%%
@@ -741,7 +751,7 @@ class AbachiTemporali:
         else:  # Tutti gli altri
             return 1e-3, 1e0  # log10 → [–3, 0]
         
-    def plot_singolo(self, tipo, n_label, d_list=["0p5", "1p0", "1p5", "2p0"]):
+    def plot_singolo(self, tipo, n_label, d_list=["0p5", "1p0", "1p5", "2p0"], export_html=False, filename="grafico.html"):
         fig = go.Figure()
         x_interp = np.linspace(0.5, 6.0, 250)
     
@@ -768,31 +778,32 @@ class AbachiTemporali:
         tickvals = [1e-3, 1e-2, 1e-1, 1e0, 1e1]
         ticktext = [f"1e{int(np.log10(v))}" for v in tickvals]
     
-
         fig.update_layout(
             title=f"Abaco n={n_label[1:].replace('p', '.')}",
-            autosize=True,
-            height=None,
-            width=None,
             template="plotly_white",
             showlegend=True,
             legend=dict(
-                orientation='h',   # Legenda orizzontale
+                orientation='h',
                 x=1,
                 xanchor='right',
                 y=1.1,
                 yanchor='bottom'
             ),
-            font=dict(
-                family="Roboto",
-                size=14,
-                color="black"
-            ),
-            margin=dict(t=100, b=50, l=50, r=50)
+            font=dict(family="Roboto", size=14, color="black"),
+            margin=dict(t=140, b=50, l=50, r=50),
+            hovermode="closest"
         )
-
     
-        fig.update_xaxes(title_text="S/H₀", tickformat=".2f")
+        fig.update_xaxes(
+            title_text="S/H₀",
+            tickformat=".2f",
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
+        )
+    
         fig.update_yaxes(
             type="log",
             title_text=tipo,
@@ -802,13 +813,101 @@ class AbachiTemporali:
             ticks="outside",
             ticklen=8,
             showgrid=True,
-            gridcolor="lightgray",
+            gridcolor="#EAF2F6",
             range=[np.log10(y_min_plot), np.log10(y_max_plot)],
-            fixedrange=True
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
         )
     
-        # Mostrare il grafico
+        if export_html:
+            fig.write_html(
+                filename,
+                include_plotlyjs="cdn",
+                config={
+                    "responsive": True,
+                    "displaylogo": False,
+                    "displayModeBar": True,
+                    "modeBarButtonsToAdd": ["hoverClosestCartesian"]
+                }
+            )
+            fig.show()
+        else:
+            fig.show()
+
+
+#%%
+class AbacoPortate:
+    def __init__(self):
+        self.s = np.array([0,
+            0.04176044, 0.17815168077733734, 0.3039688493551962, 0.4083163648054873,
+            0.5228092737470083, 0.7302897152859644, 0.9372343085771442, 1.0817347193941342,
+            1.2776051155646055, 1.6071160647304688, 1.946772407387561, 2.4303218661808312,
+            2.9241238881148863, 3.376701318186689, 3.7470796270496196, 4.220412245918622,
+            4.8994391455006605
+        ])
+
+        self.q = np.array([0,
+            0.075095917, 0.38377022827135376, 0.6590847711927983, 0.8301789733147573,
+            0.9846318722537777, 1.185150573357625, 1.323167934840853, 1.3776958525345622,
+            1.4240188618583218, 1.4581759725645698, 1.475691780087879, 1.4769006537348623,
+            1.473968492123031, 1.4625999356982105, 1.4635258814703676, 1.4730425463508734,
+            1.4747401135998284
+        ])
+
+    def plot(self, export_html=False, filename="Art1_Abachi_portata.html"):
+        s_interp = np.linspace(self.s.min(), self.s.max(), 300)
+        q_interp = CubicSpline(self.s, self.q)(s_interp)
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=s_interp,
+            y=q_interp,
+            mode='lines',
+            name="q = QD·k",
+            hovertemplate="S / (2·D): %{x:.2f}<br>q: %{y:.3f}<extra></extra>"
+        ))
+
+        fig.update_layout(
+            title="Fattore di portata",
+            xaxis_title="S / (2·D)",
+            yaxis_title="q",
+            template="plotly_white",
+            font=dict(family="Roboto", size=14, color="black"),
+            margin=dict(t=100, b=50, l=50, r=50),
+            hovermode="closest",
+            showlegend=False
+        )
+
+        fig.update_xaxes(
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
+        )
+
+        fig.update_yaxes(
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1,
+            showgrid=True,
+            gridcolor="#EAF2F6"
+        )
+
+        if export_html:
+            fig.write_html(
+                filename,
+                include_plotlyjs="cdn",
+                config={
+                    "responsive": True,
+                    "displaylogo": False,
+                    "displayModeBar": True,
+                    "modeBarButtonsToAdd": ["hoverClosestCartesian"]
+                }
+            )
         fig.show()
-
-
-
