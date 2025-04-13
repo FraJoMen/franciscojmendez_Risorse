@@ -866,13 +866,13 @@ class AbacoPortate:
             x=s_interp,
             y=q_interp,
             mode='lines',
-            name="q = QD·k",
-            hovertemplate="S / (2·D): %{x:.2f}<br>q: %{y:.3f}<extra></extra>"
+            name="q",
+            hovertemplate="s: %{x:.2f}<br>q: %{y:.3f}<extra></extra>"
         ))
 
         fig.update_layout(
             title="Fattore di portata",
-            xaxis_title="S / (2·D)",
+            xaxis_title="s",
             yaxis_title="q",
             template="plotly_white",
             font=dict(family="Roboto", size=14, color="black"),
