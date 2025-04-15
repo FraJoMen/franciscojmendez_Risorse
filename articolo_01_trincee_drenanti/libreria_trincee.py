@@ -9,7 +9,7 @@ Created on Sat Mar 29 14:12:40 2025
 
 import numpy as np
 import plotly.graph_objects as go
-from scipy.interpolate import CubicSpline,interp1d
+from scipy.interpolate import CubicSpline
 from plotly.subplots import make_subplots
 
 #%% 
