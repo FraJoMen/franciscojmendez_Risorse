@@ -9,30 +9,29 @@ Created on Sat Mar 29 14:12:40 2025
 
 import numpy as np
 import plotly.graph_objects as go
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import CubicSpline, interp1d
 from plotly.subplots import make_subplots
 
 #%% 
 class Pendio:
-    def __init__(self, Z, beta_deg, gamma, gamma_w):
+    def __init__(self, Z, beta_deg, gamma, gamma_w, D=None):
         """
         Inizializza il pendio con i parametri geometrici e fisici fissi.
-        
+
         Parametri:
         - Z: array di profondità [m]
         - beta_deg: inclinazione del pendio [gradi]
         - gamma: peso specifico del terreno [kN/m³]
         - gamma_w: peso specifico dell’acqua [kN/m³]
+        - D: profondità del piano di scorrimento (opzionale) [m]
         """
         self.Z = np.array(Z)
         self.beta = np.radians(beta_deg)
         self.gamma = gamma
         self.gamma_w = gamma_w
+        self.D = D
 
     def calcola_componenti(self, dw):
-        """
-        Calcola tau_beta, sigma_beta, u0 per una falda a profondità dw.
-        """
         Z = np.maximum(self.Z, 1e-3)
         tau = self.gamma * Z * np.cos(self.beta) * np.sin(self.beta)
         sigma = self.gamma * Z * np.cos(self.beta)**2
@@ -41,10 +40,6 @@ class Pendio:
         return tau, sigma, u0
 
     def calcola_F(self, c_list, phi_list, dw_list):
-        """
-        Calcola F(Z) per ogni combinazione di c', φ', dw.
-        Ritorna un dizionario: chiavi (c, φ, dw), valori array F(Z).
-        """
         risultati = {}
         for dw in dw_list:
             tau, sigma, u0 = self.calcola_componenti(dw)
@@ -57,9 +52,6 @@ class Pendio:
         return risultati
 
     def plot_F_vs_Z_dw(self, F_dict, c, phi):
-        """
-        Plot F(Z) al variare di dw per una coppia fissa (c, φ)
-        """
         fig = go.Figure()
         for (c_val, phi_val, dw), F in F_dict.items():
             if c_val == c and phi_val == phi:
@@ -69,6 +61,23 @@ class Pendio:
                     mode='lines+markers',
                     name=f'dw={dw} m'
                 ))
+                if self.D is not None:
+                    interp = interp1d(self.Z, F, kind='linear', fill_value='extrapolate')
+                    FD = float(interp(self.D))
+                    fig.add_trace(go.Scatter(
+                        x=[self.D],
+                        y=[FD],
+                        mode='markers',
+                        marker=dict(size=10, color='red', symbol='circle'),
+                        showlegend=False
+                    ))
+                    fig.add_shape(
+                        type='line',
+                        x0=self.D, x1=self.D,
+                        y0=0, y1=FD,
+                        line=dict(color='red', width=1, dash='dot')
+                    )
+
         fig.update_layout(
             title=f"F(Z) per c'={c} kPa, φ={phi}°",
             xaxis_title="Profondità Z [m]",
@@ -78,9 +87,6 @@ class Pendio:
         fig.show()
 
     def plot_F_vs_Z_c_phi(self, F_dict, dw):
-        """
-        Plot F(Z) al variare di c', φ' per una falda fissa (dw)
-        """
         fig = go.Figure()
         for (c_val, phi_val, dw_val), F in F_dict.items():
             if dw_val == dw:
@@ -90,6 +96,23 @@ class Pendio:
                     mode='lines+markers',
                     name=f"c'={c_val}, φ={phi_val}°"
                 ))
+                if self.D is not None:
+                    interp = interp1d(self.Z, F, kind='linear', fill_value='extrapolate')
+                    FD = float(interp(self.D))
+                    fig.add_trace(go.Scatter(
+                        x=[self.D],
+                        y=[FD],
+                        mode='markers',
+                        marker=dict(size=10, color='red', symbol='circle'),
+                        showlegend=False
+                    ))
+                    fig.add_shape(
+                        type='line',
+                        x0=self.D, x1=self.D,
+                        y0=0, y1=FD,
+                        line=dict(color='red', width=1, dash='dot')
+                    )
+
         fig.update_layout(
             title=f"F(Z) per dw={dw} m",
             xaxis_title="Profondità Z [m]",
@@ -98,8 +121,64 @@ class Pendio:
         )
         fig.show()
 
+    def plot_confronto_F_vs_Z(self, F_dict, chiavi):
+        fig = go.Figure()
 
+        for chiave in chiavi:
+            c, phi, dw = chiave
+            if chiave in F_dict:
+                F = F_dict[chiave]
+                fig.add_trace(go.Scatter(
+                    x=self.Z,
+                    y=F,
+                    mode='lines+markers',
+                    name=f"c'={c:.1f}, φ={phi:.1f}°, dw={dw:.1f} m"
+                ))
+                if self.D is not None:
+                    interp = interp1d(self.Z, F, kind='linear', fill_value='extrapolate')
+                    FD = float(interp(self.D))
+                    fig.add_trace(go.Scatter(
+                        x=[self.D],
+                        y=[FD],
+                        mode='markers',
+                        marker=dict(size=10, color='red', symbol='circle'),
+                        showlegend=False
+                    ))
+                    fig.add_shape(
+                        type='line',
+                        x0=self.D, x1=self.D,
+                        y0=0, y1=FD,
+                        line=dict(color='red', width=1, dash='dot')
+                    )
 
+        fig.update_layout(
+            title="F(Z) – confronto tra scenari selezionati",
+            xaxis_title="Profondità Z [m]",
+            yaxis_title="F",
+            template="plotly_white"
+        )
+
+        fig.show()
+        
+    def stima_FD(self, F_curve):
+        if self.D is None:
+            raise ValueError("Profondità D non definita nel pendio.")
+        interp = interp1d(self.Z, F_curve, kind='linear', fill_value='extrapolate')
+        return float(interp(self.D))
+
+    def calcolo_efficienza_progetto(self, F_dict, c_proj, phi_proj, dw_init=0.0, dw_dry=None, F_target=1.5):
+        if self.D is None:
+            raise ValueError("Profondità D non definita nel pendio.")
+    
+        if dw_dry is None:
+            dw_dry = max(dw for (c, phi, dw) in F_dict if c == c_proj and phi == phi_proj)
+    
+        F0 = self.stima_FD(F_dict[(0.0, phi_proj, dw_init)])
+        Fmax = self.stima_FD(F_dict[(c_proj, phi_proj, dw_dry)])
+        deltaF = F_target - F0
+        deltaFmax = Fmax - F0
+        E = deltaF / deltaFmax
+        return F0, Fmax, deltaF, deltaFmax, E
 
 #%%
 
@@ -160,22 +239,22 @@ class AbachiEfficienza:
         }  # Efficienza per d=2.0
 
         # Dati per n=4.0, d=0.5, 1.0, 1.5, 2.0
-        self.data_n2p5_d0p5 = {
+        self.data_n4_d0p5 = {
             "S/H0": np.array([0.606156838,0.827167872,0.98206114,1.176123743,1.403994541,1.65445171,1.882607959,2.121914668,2.295025557,2.445575349,2.622929607,2.811799813,3.050605495,3.25858635,3.451080455,3.627988695,3.977983045,4.258584367,4.44308731,4.66963368,4.934500464,5.157076032,5.47172962,5.786036304,5.931772814]),
             "efficienza": np.array([0.994970102,0.979936309,0.966041944,0.94057132,0.900918501,0.8509466,0.806108073,0.75870286,0.72774393,0.701089375,0.673598123,0.645233831,0.612486169,0.584167305,0.559413284,0.5400247,0.501238444,0.473092206,0.454622089,0.436251913,0.416171999,0.400493627,0.378731233,0.363270914,0.354613201])
         }  # Efficienza per d=0.5
         
-        self.data_n2p5_d1 = {
+        self.data_n4_d1 = {
             "S/H0": np.array([0.499813252,0.687504055,0.846239656,1.011610898,1.210619218,1.45650722,1.664477779,1.854265746,2.06878591,2.262940281,2.472549137,2.711027159,2.958381384,3.181089449,3.477191086,3.82861842,4.064397016,4.366675428,4.673205527,4.981890148,5.312636218,5.605436166,5.862645269,5.971256856]),
             "efficienza": np.array([0.961973751,0.92802909,0.897663111,0.867312905,0.828705489,0.782393416,0.741723012,0.709867628,0.670776013,0.639973154,0.609728105,0.577467389,0.5447067,0.517619227,0.483411196,0.448813605,0.425404714,0.399548533,0.376828898,0.35515653,0.33457875,0.320163645,0.309311449,0.305401044])  
         }  # Efficienza per d=1
         
-        self.data_n2p5_d1p5 = {
+        self.data_n4_d1p5 = {
             "S/H0": np.array([0.504064938,0.644388514,0.85141266,1.040827799,1.270314902,1.526516649,1.796075718,1.998704782,2.239136573,2.432688681,2.686133643,2.923952044,3.206094097,3.537184317,3.936728122,4.289679036,4.598162903,4.890934172,5.190255046,5.498280046,5.806247688,5.945940322]),
             "efficienza": np.array([0.643608238,0.626225318,0.602748074,0.577665753,0.54798903,0.515249372,0.480978246,0.456969482,0.429403068,0.409541311,0.386695487,0.366417883,0.34468242,0.317852582,0.293269757,0.271181541,0.253156207,0.239262107,0.226946795,0.217257539,0.208610292,0.202689478])  
         }  # Efficienza per d=1.5
         
-        self.data_n2p5_d2p0 = {
+        self.data_n4_d2p0 = {
             "S/H0": np.array([0.486384232,0.64417342,0.797567526,1.079967691,1.364637095,1.604868132,1.844927093,2.1272699,2.344980621,2.562720021,2.791404108,3.059988085,3.421757843,3.694708223,4.00732906,4.324545733,4.608354762,4.940796488,5.251033369,5.598814864,5.826896688,5.968571769]),
             "efficienza": np.array([0.482554644,0.469381825,0.455677486,0.42925298,0.401791722,0.377872342,0.35707899,0.331696494,0.315018603,0.297819707,0.282731119,0.266174159,0.244627979,0.229123544,0.216318774,0.200398491,0.188567379,0.177372944,0.167688946,0.159136341,0.154988855,0.153241338])  
         }  # Efficienza per d=2.0
@@ -389,7 +468,103 @@ class AbachiEfficienza:
             fig.show()
         else:
             fig.show()
+    
+    def plot_abaco_risultati(self, E_target, n_label='n=1.0'):
+        """
+        Plotta tutte le curve dell'abaco per un dato n_label,
+        evidenziando il punto corrispondente a E_target su ciascuna curva.
+        """
+        fig = go.Figure()
+    
+        parametri = {
+            "n=1.0": [
+                ("d=0.5", self.data_n1_d0p5),
+                ("d=1.0", self.data_n1_d1)
+            ],
+            "n=1.5": [
+                ("d=0.5", self.data_n1p5_d0p5),
+                ("d=1.0", self.data_n1p5_d1),
+                ("d=1.5", self.data_n1p5_d1p5)
+            ],
+            "n=2.5": [
+                ("d=0.5", self.data_n2p5_d0p5),
+                ("d=1.0", self.data_n2p5_d1),
+                ("d=1.5", self.data_n2p5_d1p5),
+                ("d=2.0", self.data_n2p5_d2p0)
+            ],
+            "n=4.0": [
+                ("d=0.5", self.data_n4_d0p5),
+                ("d=1.0", self.data_n4_d1),
+                ("d=1.5", self.data_n4_d1p5),
+                ("d=2.0", self.data_n4_d2p0)
+            ]
+        }
+    
+        if n_label not in parametri:
+            raise ValueError(f"Valore di n non valido: {n_label}. Scegli tra {list(parametri.keys())}")
+    
+        for d_label, data in parametri[n_label]:
+            x = data["S/H0"]
+            y = data["efficienza"]
+    
+            # Plotta la curva
+            fig.add_trace(go.Scatter(
+                x=x, y=y, mode='lines+markers', name=d_label
+            ))
+    
+            # Interpolazione inversa
+            spline_inversa = CubicSpline(y[::-1], x[::-1])  # invertiti per monotonìa decrescente
+            SuH0 = float(spline_inversa(E_target))
+    
+            fig.add_trace(go.Scatter(
+                x=[SuH0], y=[E_target],
+                mode='markers',
+                marker=dict(size=10, color='red', symbol='diamond'),
+                name=f"Target {d_label}"
+            ))
+    
+        fig.update_layout(
+            title=f"Abaco {n_label}",
+            xaxis_title="S / H₀",
+            yaxis_title="Efficienza idraulica media",
+            template="plotly_white",
+            hovermode='closest',
+            font=dict(family="Roboto", size=14),
+            margin=dict(t=100)
+        )
+    
+        fig.show()
 
+
+    def ricava_SuH0_per_efficienza(self, E_target, n_label, d_label):
+        """
+        Calcola il valore di S/H0 corrispondente a un'efficienza target
+        per una coppia (n, d) fornita come etichette 'n=1.0', 'd=1.0'.
+        """
+        def clean_label(label):
+            value = label.split('=')[1]
+            if value.endswith('.0'):
+                value = value.replace('.0', '')
+            value = value.replace('.', 'p')
+            return value
+    
+        n_clean = clean_label(n_label)
+        d_clean = clean_label(d_label)
+        nome_df = f"data_n{n_clean}_d{d_clean}"
+    
+        if not hasattr(self, nome_df):
+            raise ValueError(f"Dataset {nome_df} non trovato nella libreria.")
+    
+        df = getattr(self, nome_df)
+        E_values = df["efficienza"]
+        S_values = df["S/H0"]
+    
+        idx_sort = np.argsort(E_values)
+        E_sorted = E_values[idx_sort]
+        S_sorted = S_values[idx_sort]
+    
+        spline = CubicSpline(E_sorted, S_sorted, extrapolate=True)
+        return float(spline(E_target))
 
 
 #%%
@@ -552,7 +727,6 @@ class AbachiTemporali:
 
     def add_griglia_secondaria_y(self, fig, row, col, y_min=1e-3, y_max=1e1,
                                  color="rgba(200,200,200,0.2)", width=0.5):
-        import numpy as np
     
         # Esponenti log base 10 tra y_min e y_max (senza sforare!)
         e_min = int(np.floor(np.log10(y_min)))
@@ -779,6 +953,132 @@ class AbachiTemporali:
         else:
             fig.show()
 
+    def plot_abaco_risultati(self, SuH0, n_label='n=1.0', tipo='T50'):
+        """
+        Plotta tutte le curve dell'abaco temporale per un dato n_label (es. 'n=1.0')
+        evidenziando il punto corrispondente a Su/H0 su ciascuna curva (per ogni d).
+    
+        Parametri:
+        - SuH0: valore del rapporto S/H₀ per cui si vuole ricavare T
+        - n_label: stringa del tipo 'n=1.0'
+        - tipo: 'T50' o 'T90'
+        """
+        def clean_label(label):
+            val = label.split('=')[1]
+            if val.endswith('.0'):
+                val = val[:-2]
+            return val.replace('.', 'p')
+    
+        n_clean = clean_label(n_label)
+        d_list = ["0p5", "1p0", "1p5", "2p0"]
+    
+        fig = go.Figure()
+        x_interp = np.linspace(0.5, 6.0, 250)
+    
+        for d_clean in d_list:
+            dataset_name = f"data_{tipo}_n{n_clean}_d{d_clean}"
+            if not hasattr(self, dataset_name):
+                continue
+    
+            data = getattr(self, dataset_name)
+            x = data["S/H0"]
+            y = data["T"]
+    
+            # Interpolazione log su y
+            spline_log = CubicSpline(x, np.log10(y), extrapolate=False)
+            y_interp = 10 ** spline_log(x_interp)
+    
+            fig.add_trace(go.Scatter(
+                x=x_interp,
+                y=y_interp,
+                mode="lines",
+                name=f"d={d_clean.replace('p', '.')}",
+                hovertemplate="S/H₀: %{x:.2f}<br>T: %{y:.2e}<extra></extra>"
+            ))
+    
+            if min(x) <= SuH0 <= max(x):
+                T_val = 10 ** spline_log(SuH0)
+                fig.add_trace(go.Scatter(
+                    x=[SuH0],
+                    y=[T_val],
+                    mode="markers",
+                    marker=dict(size=10, color="red", symbol="diamond"),
+                    name=f"Punto d={d_clean.replace('p', '.')}"
+                ))
+    
+        # Griglia, limiti e stile coerente
+        y_min_plot, y_max_plot = self.get_y_limits(tipo, f"n{n_clean}")
+        self.add_griglia_subplot(fig, y_min=y_min_plot, y_max=y_max_plot)
+    
+        tickvals = [1e-3, 1e-2, 1e-1, 1e0, 1e1]
+        ticktext = [f"1e{int(np.log10(v))}" for v in tickvals]
+    
+        fig.update_layout(
+            title=f"Abachi {tipo} – {n_label}",
+            template="plotly_white",
+            showlegend=True,
+            font=dict(family="Roboto", size=14),
+            margin=dict(t=100),
+            hovermode="closest"
+        )
+    
+        fig.update_xaxes(
+            title_text="S / H₀",
+            tickformat=".2f",
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
+        )
+    
+        fig.update_yaxes(
+            type="log",
+            title_text=tipo,
+            tickmode="array",
+            tickvals=tickvals,
+            ticktext=ticktext,
+            ticks="outside",
+            ticklen=8,
+            showgrid=True,
+            gridcolor="#EAF2F6",
+            range=[np.log10(y_min_plot), np.log10(y_max_plot)],
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
+        )
+    
+        fig.show()
+        
+    def ricava_T_da_SuH0(self, SuH0, tipo="T50", n_label="n=1.0", d_label="d=1.0"):
+        """
+        Calcola il valore di T (T50 o T90) corrispondente a un dato S/H0
+        per una coppia (n, d) fornite come etichette 'n=1.0', 'd=1.0'.
+        """
+        def clean_label(label):
+            value = label.split('=')[1]
+            return value.replace('.', 'p')  # converte '1.0' → '1p0'
+    
+        n_clean = clean_label(n_label)   # es: 'n=1.0' → '1p0'
+        d_clean = clean_label(d_label)
+    
+        nome_df = f"data_{tipo}_n{n_clean}_d{d_clean}"
+    
+        if not hasattr(self, nome_df):
+            raise ValueError(f"Dataset {nome_df} non disponibile.")
+    
+        data = getattr(self, nome_df)
+        x = data["S/H0"]
+        y = data["T"]
+    
+        if SuH0 < min(x) or SuH0 > max(x):
+            raise ValueError(f"S/H0 = {SuH0:.3f} è fuori dall'intervallo ({min(x):.2f}, {max(x):.2f}) per {nome_df}")
+    
+        spline_log = CubicSpline(x, np.log10(y), extrapolate=False)
+        log_T = spline_log(SuH0)
+        return float(10**log_T)
 
 #%%
 class AbacoPortate:
