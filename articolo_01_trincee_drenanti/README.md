@@ -1,6 +1,6 @@
 # Articolo 1 – Dimensionamento di Massima delle Trincee Drenanti
 
-Questo progetto contiene i materiali di supporto all’articolo:
+Questo progetto contiene il materiale di supporto all’articolo:
 
 📄 **Dimensionamento di Massima delle Trincee Drenanti**  
 👉 [Leggi l’articolo completo sul sito](https://www.franciscojmendez.com/trincee-drenanti-dimensionamento-massima/)
@@ -9,12 +9,29 @@ Questo progetto contiene i materiali di supporto all’articolo:
 
 ## 📖 Contenuti
 
-La cartella include:
+Questa repository contiene una raccolta completa di strumenti ed esempi per il **dimensionamento idraulico delle trincee drenanti**, basati su abachi numerici e simulazioni teoriche. 
 
-- `trincee_drenanti.ipynb` → notebook Jupyter con esempi numerici e visualizzazioni;
-- `libreria_trincee.py` → libreria Python per il calcolo dell’efficienza idraulica.
+### File principali
 
-Tutti i dati di input sono forniti direttamente nel notebook, così da rendere l’esecuzione immediata e indipendente da file di input esterni.
+- `uso_funzioni_libreria_trincee.ipynb` → notebook di **esplorazione e uso guidato** delle funzioni disponibili nella libreria Python, con esempi sintetici e visualizzazioni interattive.
+- `esempio_progetto.ipynb` → notebook che rappresenta un **caso studio completo**, con dati progettuali reali, verifiche, grafici e stime ingegneristiche commentate passo passo.
+- `libreria_trincee.py` → **libreria Python modulare**, contenente le `classi`:
+  - `Pendio`: per la valutazione del coefficiente di sicurezza $F(Z)$;
+  - `AbachiEfficienza`: per l’interrogazione degli abachi statici di efficienza idraulica media;
+  - `AbachiTemporali`: per l’interpolazione dei tempi caratteristici $T_{50}$ e $T_{90}$;
+  - `AbacoPortate`: per il calcolo della portata drenata da ciascuna trincea.
+
+Tutti i dati di input sono forniti direttamente nei notebook, rendendo l'esecuzione immediata e **indipendente da file esterni**
+
+
+### 📁 Struttura della cartella `data`
+
+La cartella `data/` contiene le risorse tecniche fondamentali utilizzate per la costruzione della libreria:
+
+- i dati numerici interpolabili degli abachi, suddivisi per tipo e parametro, in formato CSV;
+- le immagini originali dei grafici tratti dalla letteratura scientifica, usati come riferimento;
+- file html con grafici Plotly esportati in HTML per consultazione interattiva offline.
+
 
 ---
 
@@ -32,13 +49,13 @@ Sono considerati:
 
 ## 🛠️ Esempio di utilizzo
 
-Il notebook mostra come:
+Il notebook `esempio_progetto.ipynb` mostra come:
 - stimare la stabilità del versante;
 - calcolare l’efficienza idraulica in funzione della geometria;
 - valutare gli effetti dell'opera di drenaggio;
 - visualizzare i risultati con grafici e formule.
 
-👉 Il notebook può essere **eseguito e modificato liberamente**, ed eventualmente **esportato in PDF** per essere allegato a relazioni tecniche, report o documentazione di progetto.
+👉 Il notebook può essere **eseguito e modificato liberamente**, ed eventualmente **esportato in Html/ PDF** per essere allegato a relazioni tecniche, report o documentazione di progetto.
 
 ---
 
@@ -74,6 +91,8 @@ Chiunque può usarlo, modificarlo e redistribuirlo, purché mantenga la stessa l
 ---
 
 ## 📚  Bibliografia
+Le formulazioni e gli abachi implementati derivano dai seguenti contributi tecnici e scientifici:
+
 
 1. **Desideri A., Miliziano S., Rampello S. (1997).** *Drenaggi a gravità per la stabilizzazione dei pendii*. Argomenti di Ingegneria Geotecnica, Hevelius Edizioni, Benevento. [Link al documento PDF](https://www.ordineingegnerilecce.it/wp-content/uploads/2021/06/DRENAGGIweb-1.pdf)
 2. **Ordine dei Geologi della Sardegna (s.d.).** *La progettazione delle trincee drenanti per la stabilizzazione dei pendii*. Miscellanea Sarda. [Link al documento PDF](https://www.geologi.sardegna.it/fileadmin/ORGS/Miscellanea_Sarda/La_progettazione_delle_trincee_drenanti_per_la_stabilizzazione_dei_pendii.pdf)

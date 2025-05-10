@@ -166,19 +166,43 @@ class Pendio:
         interp = interp1d(self.Z, F_curve, kind='linear', fill_value='extrapolate')
         return float(interp(self.D))
 
-    def calcolo_efficienza_progetto(self, F_dict, c_proj, phi_proj, dw_init=0.0, dw_dry=None, F_target=1.5):
+    def calcolo_efficienza_progetto(self, F_dict, c_proj, phi_proj, dw_init, dw_dry, F_target=1.5):
+        """
+        Calcola i valori F0, Fmax, ΔF, ΔFmax e l'efficienza richiesta.
+    
+        Parametri:
+        - F_dict: dizionario delle curve F(Z)
+        - c_proj: coesione di progetto
+        - phi_proj: angolo di attrito di progetto
+        - dw_init: falda iniziale (per F0)
+        - dw_dry: falda finale (per Fmax)
+        - F_target: valore obiettivo del coefficiente di sicurezza
+    
+        Restituisce:
+        - F0: coeff. sicurezza iniziale (Z=D)
+        - Fmax: coeff. sicurezza massimo ottenibile (Z=D)
+        - ΔF: incremento richiesto
+        - ΔFmax: incremento massimo ottenibile
+        - E: efficienza richiesta
+        """
         if self.D is None:
             raise ValueError("Profondità D non definita nel pendio.")
+        
+        chiave_init = (c_proj, phi_proj, dw_init)
+        chiave_dry = (c_proj, phi_proj, dw_dry)
     
-        if dw_dry is None:
-            dw_dry = max(dw for (c, phi, dw) in F_dict if c == c_proj and phi == phi_proj)
-    
-        F0 = self.stima_FD(F_dict[(0.0, phi_proj, dw_init)])
-        Fmax = self.stima_FD(F_dict[(c_proj, phi_proj, dw_dry)])
+        if chiave_init not in F_dict:
+            raise KeyError(f"Nessuna curva trovata per {chiave_init}")
+        if chiave_dry not in F_dict:
+            raise KeyError(f"Nessuna curva trovata per {chiave_dry}")
+        
+        F0 = self.stima_FD(F_dict[chiave_init])
+        Fmax = self.stima_FD(F_dict[chiave_dry])
         deltaF = F_target - F0
         deltaFmax = Fmax - F0
         E = deltaF / deltaFmax
         return F0, Fmax, deltaF, deltaFmax, E
+
 
 #%%
 
@@ -1057,14 +1081,14 @@ class AbachiTemporali:
         Calcola il valore di T (T50 o T90) corrispondente a un dato S/H0
         per una coppia (n, d) fornite come etichette 'n=1.0', 'd=1.0'.
         """
-        def clean_label(label):
+        def clean_d_label(label):
             value = label.split('=')[1]
-            return value.replace('.', 'p')  # converte '1.0' → '1p0'
+            return value.replace('.', 'p')
     
-        n_clean = clean_label(n_label)   # es: 'n=1.0' → '1p0'
-        d_clean = clean_label(d_label)
+        n_clean = n_label.split('=')[1]  # es: 'n=1.0' → '1.0' (n va lasciato così!)
+        d_clean = clean_d_label(d_label)  # es: 'd=1.0' → '1p0'
     
-        nome_df = f"data_{tipo}_n{n_clean}_d{d_clean}"
+        nome_df = f"data_{tipo}_n{n_clean.replace('.0','')}_d{d_clean}"  # es: data_T50_n1_d1p0
     
         if not hasattr(self, nome_df):
             raise ValueError(f"Dataset {nome_df} non disponibile.")
@@ -1079,6 +1103,7 @@ class AbachiTemporali:
         spline_log = CubicSpline(x, np.log10(y), extrapolate=False)
         log_T = spline_log(SuH0)
         return float(10**log_T)
+
 
 #%%
 class AbacoPortate:
@@ -1153,3 +1178,115 @@ class AbacoPortate:
                 }
             )
         fig.show()
+        
+    def calcola_portata(self, S, kv, kh, D):
+        """
+        Calcola la portata drenata per metro lineare di trincea e la visualizza in l/h.
+    
+        Parametri:
+        - S: interasse delle trincee [m]
+        - kv: permeabilità verticale [m/s]
+        - kh: permeabilità orizzontale [m/s]
+        - D: profondità del piano di scorrimento [m]
+    
+        Ritorna:
+        - Q_lh: portata in litri all’ora (l/h) per metro lineare
+        """
+        s_adim = (S * np.sqrt(kv / kh)) / (2 * D)
+    
+        # Interpolazione del fattore di portata adimensionale
+        spline = CubicSpline(self.s, self.q, extrapolate=False)
+        q_adim = float(spline(s_adim))
+    
+        # Calcolo della portata in l/h
+        Q_lh = q_adim * kv * D * 1000 * 3600  # da m³/s → l/h
+    
+        # Dati per grafico
+        s_plot = np.linspace(0, self.s.max(), 300)
+        q_plot = spline(s_plot)
+        S_plot = 2 * D * s_plot / np.sqrt(kv / kh)
+        Q_plot_lh = q_plot * kv * D * 1000 * 3600  # l/h
+    
+        fig = go.Figure()
+    
+        fig.add_trace(go.Scatter(
+            x=S_plot,
+            y=Q_plot_lh,
+            mode="lines",
+            name="Q(S)",
+            hovertemplate="S = %{x:.2f} m<br>Q = %{y:.2e} l/h<extra></extra>"
+        ))
+    
+        fig.add_trace(go.Scatter(
+            x=[S],
+            y=[Q_lh],
+            mode="markers",
+            marker=dict(size=10, color="red", symbol="diamond"),
+            name="Punto di progetto",
+            hovertemplate="S = %{x:.2f} m<br>Q = %{y:.2e} l/h<extra></extra>"
+        ))
+    
+        fig.update_layout(
+            title="Portata drenata per metro lineare",
+            xaxis_title="Interasse S [m]",
+            yaxis_title="Q [l/h]",
+            template="plotly_white",
+            showlegend=False,
+            font=dict(family="Roboto", size=14),
+            margin=dict(t=100, b=50, l=50, r=50),
+            hovermode="closest"
+        )
+    
+        fig.update_xaxes(
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1
+        )
+    
+        fig.update_yaxes(
+            tickformat=".1e",  # ✅ notazione scientifica
+            showspikes=True,
+            spikecolor="grey",
+            spikethickness=1,
+            linecolor="black",
+            linewidth=1,
+            showgrid=True,
+            gridcolor="#EAF2F6"
+        )
+    
+        fig.show()
+        return Q_lh
+
+
+def calcola_tempo_reale(T_adim, H0, kv, gamma_w, E, nu):
+    """
+    Calcola il tempo reale corrispondente a un tempo adimensionale T,
+    restituendo il risultato con unità di misura intelligenti.
+
+    Parametri:
+    - T_adim: tempo adimensionale (T)
+    - H0: profondità del dreno [m]
+    - kv: permeabilità verticale [m/s]
+    - gamma_w: peso specifico dell'acqua [kN/m³]
+    - E: modulo di Young [kPa]
+    - nu: coefficiente di Poisson
+
+    Ritorna:
+    - Stringa del tipo "5.6 mesi", "12.3 giorni" o "4.2 ore"
+    """
+    # Calcolo tempo in secondi
+    coeff = (2 * (1 + nu) * (1 - 2 * nu) * gamma_w * H0**2) / (E * kv)
+    t_sec = T_adim * coeff
+
+    # Conversione e scelta dell'unità più adatta
+    if t_sec >= 30 * 86400:
+        t_mesi = t_sec / (30 * 86400)
+        return f"{t_mesi:.2f} mesi"
+    elif t_sec >= 86400:
+        t_giorni = t_sec / 86400
+        return f"{t_giorni:.2f} giorni"
+    else:
+        t_ore = t_sec / 3600
+        return f"{t_ore:.2f} ore"
