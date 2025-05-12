@@ -13,23 +13,23 @@ Questa repository contiene una raccolta completa di strumenti ed esempi per il *
 
 ### File principali
 
-- `uso_funzioni_libreria_trincee.ipynb` → notebook di **esplorazione e uso guidato** delle funzioni disponibili nella libreria Python, con esempi sintetici e visualizzazioni interattive.
-- `esempio_progetto.ipynb` → notebook che rappresenta un **caso studio completo**, con dati progettuali reali, verifiche, grafici e stime ingegneristiche commentate passo passo.
 - `libreria_trincee.py` → **libreria Python modulare**, contenente le `classi`:
   - `Pendio`: per la valutazione del coefficiente di sicurezza $F(Z)$;
   - `AbachiEfficienza`: per l’interrogazione degli abachi statici di efficienza idraulica media;
   - `AbachiTemporali`: per l’interpolazione dei tempi caratteristici $T_{50}$ e $T_{90}$;
   - `AbacoPortate`: per il calcolo della portata drenata da ciascuna trincea.
+- `uso_funzioni_libreria_trincee.ipynb` → notebook di **esplorazione e uso guidato** delle funzioni disponibili nella libreria  `libreria_trincee.py`, con esempi sintetici e visualizzazioni interattive.
+- `esempio_progetto.ipynb` → notebook che rappresenta un **caso studio completo**, con dati progettuali reali, verifiche, grafici e stime ingegneristiche commentate passo passo.
 
 Tutti i dati di input sono forniti direttamente nei notebook, rendendo l'esecuzione immediata e **indipendente da file esterni**
 
 
-### 📁 Struttura della cartella `data`
+### 📁 Cartella `data`
 
-La cartella `data/` contiene le risorse tecniche fondamentali utilizzate per la costruzione della libreria:
+La cartella `data/` contiene le risorse tecniche fondamentali utilizzate per la costruzione della libreria `libreria_trincee.py`:
 
-- i dati numerici interpolabili degli abachi, suddivisi per tipo e parametro, in formato CSV;
 - le immagini originali dei grafici tratti dalla letteratura scientifica, usati come riferimento;
+- i dati numerici degli abachi, suddivisi per tipo e parametro, in formato CSV;
 - file html con grafici Plotly esportati in HTML per consultazione interattiva offline.
 
 
@@ -37,7 +37,7 @@ La cartella `data/` contiene le risorse tecniche fondamentali utilizzate per la 
 
 ## 🧠 Obiettivo
 
-Il progetto implementa un approccio semplificato per valutare l’efficienza idraulica delle trincee drenanti, basato sugli abachi derivati da simulazioni numeriche condotte in condizioni controllate.
+Il progetto implementa un approccio semplificato per valutare l’efficienza idraulica delle trincee drenanti, basato sugli abachi derivati da simulazioni numeriche condotte in condizioni semplificate.
 
 Sono considerati:
 
@@ -50,8 +50,8 @@ Sono considerati:
 ## 🛠️ Esempio di utilizzo
 
 Il notebook `esempio_progetto.ipynb` mostra come:
-- stimare la stabilità del versante;
-- calcolare l’efficienza idraulica in funzione della geometria;
+- studiare la stabilità del versante;
+- calcolare l’efficienza idraulica in linea con gli obiettivi progettuale;
 - valutare gli effetti dell'opera di drenaggio;
 - visualizzare i risultati con grafici e formule.
 
