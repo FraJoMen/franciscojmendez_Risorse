@@ -90,6 +90,14 @@ Chiunque può usarlo, modificarlo e redistribuirlo, purché mantenga la stessa l
 
 ---
 
+## ⚠️ Avvertenze
+
+I dati, gli abachi e i parametri contenuti in questo strumento sono stati implementati con la **massima attenzione e accuratezza**, ma **senza alcuna garanzia di completezza**, correttezza o idoneità a specifici scopi progettuali. Lo strumento è pensato come supporto alla progettazione e **non sostituisce il giudizio professionale del progettista**, né la verifica critica dei risultati alla luce del contesto idrogeologico e geotecnico specifico.
+
+L'utilizzo è libero nei termini della licenza GNU GPL v3, e avviene sotto la responsabilità esclusiva dell'utente.
+
+---
+
 ## 📚  Bibliografia
 Le formulazioni e gli abachi implementati derivano dai seguenti contributi tecnici e scientifici:
 
@@ -97,3 +105,8 @@ Le formulazioni e gli abachi implementati derivano dai seguenti contributi tecni
 1. **Desideri A., Miliziano S., Rampello S. (1997).** *Drenaggi a gravità per la stabilizzazione dei pendii*. Argomenti di Ingegneria Geotecnica, Hevelius Edizioni, Benevento. [Link al documento PDF](https://www.ordineingegnerilecce.it/wp-content/uploads/2021/06/DRENAGGIweb-1.pdf)
 2. **Ordine dei Geologi della Sardegna (s.d.).** *La progettazione delle trincee drenanti per la stabilizzazione dei pendii*. Miscellanea Sarda. [Link al documento PDF](https://www.geologi.sardegna.it/fileadmin/ORGS/Miscellanea_Sarda/La_progettazione_delle_trincee_drenanti_per_la_stabilizzazione_dei_pendii.pdf)
 3. **Elzoghby M.M., Jia Z., Luo W. (2021).** *Experimental study on the hydraulic performance of nonwoven geotextile as subsurface drain filter in a silty loam area.* Journal of Rock Mechanics and Geotechnical Engineering, 13(6), 1405–1418. [Link all’articolo](https://www.sciencedirect.com/science/article/pii/S2090447921001660?via%3Dihub)
+
+
+---
+
+*Sviluppato da [Francisco J. Méndez](https://franciscojmendez.com)*

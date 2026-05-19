@@ -69,5 +69,12 @@ I dati e le mappe qui presentati sono condivisi con la **massima attenzione e ac
 
 ---
 
-✉️ **Per segnalazioni o contributi:**  
-[Apri una issue su GitHub](https://github.com/FraJoMen/franciscojmendez_Risorse/issues)
+## 💬 Contribuisci o commenta
+
+- Apri una **issue** su GitHub per suggerire modifiche o segnalare errori
+- Lascia un **commento** direttamente sull'[articolo](https://www.franciscojmendez.com/progetti/mappe-piogge-abruzzo/) sul sito 🔗 
+- Usa il [modulo contatti](https://franciscojmendez.com/contatti/) per dubbi o osservazioni
+
+---
+
+*Sviluppato da [Francisco J. Méndez](https://franciscojmendez.com)*

@@ -404,6 +404,15 @@ class AbachiEfficienza:
             margin=dict(t=50, b=50, l=50, r=50),  # Aggiungi margini per evitare che i grafici tocchino il bordo
         )
         
+        # Formatta le etichette visualizzate al passaggio del mouse
+        fig.update_traces(
+            hovertemplate=(
+                "S/H₀ = %{x:.2f}<br>"
+                "Efficienza = %{y:.3f}"
+                "<extra>%{fullData.name}</extra>"
+            )
+        )
+                
         fig.show()
         
     def plot_singolo(self, n_value, export_html=False, filename="grafico.html"):
@@ -476,6 +485,15 @@ class AbachiEfficienza:
             spikethickness=1,
             linecolor="black",
             linewidth=1
+        )
+        
+        # Formatta le etichette visualizzate al passaggio del mouse
+        fig.update_traces(
+            hovertemplate=(
+                "S/H₀ = %{x:.2f}<br>"
+                "Efficienza = %{y:.3f}"
+                "<extra>%{fullData.name}</extra>"
+            )
         )
     
         if export_html:
