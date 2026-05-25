@@ -237,8 +237,8 @@ End Function
 ' L utente puo sovrascriverlo nella colonna "alpha usato" di DATI_INPUT.
 '
 ' Valori (da Tabella 1 Bustamante-Doix 1985):
-'   SG:  IRS=1.80  IGU=1.35
-'   AL:  IRS=1.70  IGU=1.15
+'   SG:  IRS=1.55  IGU=1.22
+'   AL:  IRS=1.70  IGU=1.18
 '   MC:  IRS=1.80  IGU=1.15
 '   RA:  IRS=1.20  IGU=1.10
 ' =============================================================================
@@ -252,9 +252,9 @@ Function GetAlpha(tipoTerreno As String, tipoIniezione As String) As Double
 
     Select Case abc
         Case "SG"
-            If inj = "IRS" Then GetAlpha = 1.80 Else GetAlpha = 1.35
+            If inj = "IRS" Then GetAlpha = 1.55 Else GetAlpha = 1.22
         Case "AL"
-            If inj = "IRS" Then GetAlpha = 1.70 Else GetAlpha = 1.15
+            If inj = "IRS" Then GetAlpha = 1.70 Else GetAlpha = 1.18
         Case "MC"
             If inj = "IRS" Then GetAlpha = 1.80 Else GetAlpha = 1.15
         Case "RA"

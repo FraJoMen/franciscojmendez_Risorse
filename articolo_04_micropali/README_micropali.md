@@ -3,7 +3,7 @@
 Foglio di calcolo Excel per la stima della **capacità portante assiale di micropali iniettati**
 secondo il metodo di **Bustamante–Doix (1985)**, con raccordo alla verifica secondo le **NTC 2018**.
 
-Questo strumento accompagna l'articolo tecnico pubblicato su [franciscojmendez.com](https://franciscojmendez.com).
+Questo strumento accompagna l'articolo tecnico pubblicato su [franciscojmendez.com](https://www.franciscojmendez.com/il-metodo-bustamante-doix-per-il-calcolo-dei-micropali/).
 
 ---
 
