@@ -23,6 +23,7 @@ Questo strumento accompagna l'articolo tecnico pubblicato su [franciscojmendez.c
 |---|---|---|
 | `Credits` | ✅ | Informazioni sull'autore e riferimenti |
 | `DATI_INPUT` | ✅ | Dati generali del micropalo, stratigrafia, tipo di terreno e iniezione per strato |
+| `TAB_ALPHA` | ✅ | Tabella dei coefficienti di sbulbatura α per categoria di terreno e sistema di iniezione (IGU/IRS) |
 | `CALCOLO-Qmedio` | ✅ | Calcolo della resistenza laterale con valori medi di p_l |
 | `CALCOLO-Qminimo` | ✅ | Calcolo della resistenza laterale con valori minimi di p_l |
 | `NTC2018` | ✅ | Lookup automatico dei fattori di correlazione ξ3/ξ4 |
@@ -30,10 +31,10 @@ Questo strumento accompagna l'articolo tecnico pubblicato su [franciscojmendez.c
 | `Grafico-AL` | ✅ | Grafico di riferimento — argille e limi |
 | `Grafico-MC` | ✅ | Grafico di riferimento — crete, marne e marne calcaree |
 | `Grafico-RA` | ✅ | Grafico di riferimento — rocce alterate e frantumate |
-| `ABACO-SG` | ✅ | Dati abaco sabbie e ghiaie (con colonne debug per i grafici) |
-| `ABACO-AL` | ✅ | Dati abaco argille e limi |
-| `ABACO-MC` | ✅ | Dati abaco crete, marne e marne calcaree |
-| `ABACO-RA` | ✅ | Dati abaco rocce alterate e frantumate |
+| `ABACO-SG` | 🔒 nascosto | Dati abaco sabbie e ghiaie (con colonne debug per i grafici) |
+| `ABACO-AL` | 🔒 nascosto | Dati abaco argille e limi |
+| `ABACO-MC` | 🔒 nascosto | Dati abaco crete, marne e marne calcaree |
+| `ABACO-RA` | 🔒 nascosto | Dati abaco rocce alterate e frantumate |
 | `DB_Abachi` | 🔒 nascosto | Database delle coordinate digitalizzate dagli abachi originali (Bustamante–Doix, 1985) |
 
 ---
