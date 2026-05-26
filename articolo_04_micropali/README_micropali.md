@@ -71,11 +71,11 @@ Il repository offre due percorsi:
   3. Selezionare `ModuloBustamanteDoix.bas`
   4. Salvare il file come `.xlsm` per mantenere le macro attive
 
-| Funzione | Descrizione |
+ Funzione | Descrizione |
 |---|---|
 | `GetQs(tipoTerreno, tipoIniezione, pl)` | Restituisce q_s interpolato dagli abachi |
 | `GetAlpha(tipoTerreno, tipoIniezione)` | Restituisce il coefficiente α |
-| `GetVi_min(tipoTerreno, tipoIniezione, Dd, Ls)` | Restituisce la quantità minima di malta V_i |
+| `GetKvi(tipoTerreno, tipoIniezione)` | Restituisce il rapporto Vi/Vperf = k·α² [-] |
 | `GetPl_fromNSPT(tipoTerreno, NSPT)` | Stima p_l da N_SPT (non disponibile per rocce alterate) |
 
 ---

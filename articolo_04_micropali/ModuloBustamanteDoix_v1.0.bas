@@ -3,9 +3,9 @@ Option Explicit
 
 ' =============================================================================
 ' MODULO: ModuloBustamanteDoix
-' Versione: 1.0
+' Versione: 1.1
 ' Autore:   Francisco José Mendez  –  www.franciscojmendez.com
-' Articolo: [LINK]
+' Articolo: https://www.franciscojmendez.com/il-metodo-bustamante-doix-per-il-calcolo-dei-micropali/
 '
 ' Fonte scientifica:
 '   Bustamante M., Doix B. (1985).
@@ -23,10 +23,10 @@ Option Explicit
 '   Il foglio DB_Abachi deve essere presente nella stessa cartella di lavoro.
 '
 ' Funzioni pubbliche:
-'   GetQs(tipoTerreno, curva, pl_MPa)            -> qs [MPa]
-'   GetAlpha(tipoTerreno, tipoIniezione)          -> alpha [-]
-'   GetVi_min(tipoTerreno, tipoIniezione, Vs_m3) -> Vi,min [m3]
-'   GetPl_fromNSPT(tipoTerreno, nspt)            -> pl [MPa]
+'   GetQs(tipoTerreno, curva, pl_MPa)        -> qs [MPa]
+'   GetAlpha(tipoTerreno, tipoIniezione)     -> alpha [-]
+'   GetKvi(tipoTerreno, tipoIniezione)       -> Vi/Vperf [-]
+'   GetPl_fromNSPT(tipoTerreno, nspt)        -> pl [MPa]
 '
 ' Licenza: GNU General Public License v3.0
 '   Uso libero per scopi didattici e professionali.
@@ -52,17 +52,17 @@ Private Function PL_Min(abaco As String) As Double
     Select Case UCase(Trim(abaco))
         Case "SG": PL_Min = 0.25
         Case "AL": PL_Min = 0.25
-        Case "MC": PL_Min = 1.00
-        Case "RA": PL_Min = 1.40
+        Case "MC": PL_Min = 1#
+        Case "RA": PL_Min = 1.4
         Case Else: PL_Min = 0
     End Select
 End Function
 
 Private Function PL_Max(abaco As String) As Double
     Select Case UCase(Trim(abaco))
-        Case "SG": PL_Max = 7.0
+        Case "SG": PL_Max = 7#
         Case "AL": PL_Max = 2.5
-        Case "MC": PL_Max = 8.0
+        Case "MC": PL_Max = 8#
         Case "RA": PL_Max = 8.2
         Case Else: PL_Max = 0
     End Select
@@ -170,18 +170,18 @@ Private Function GetQs_Interp(abaco As String, curva As String, _
     On Error GoTo ErrHandler
 
     Set ws = ThisWorkbook.Sheets("DB_Abachi")
-    last   = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
-    n      = 0
+    last = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    n = 0
     ReDim pl(1 To last), qs(1 To last)
 
     For i = 2 To last
-        If UCase(Trim(ws.Cells(i,1).Value)) = UCase(Trim(abaco)) And _
-           UCase(Trim(ws.Cells(i,2).Value)) = UCase(Trim(curva)) Then
-            If IsNumeric(ws.Cells(i,3).Value) And _
-               IsNumeric(ws.Cells(i,4).Value) Then
+        If UCase(Trim(ws.Cells(i, 1).Value)) = UCase(Trim(abaco)) And _
+           UCase(Trim(ws.Cells(i, 2).Value)) = UCase(Trim(curva)) Then
+            If IsNumeric(ws.Cells(i, 3).Value) And _
+               IsNumeric(ws.Cells(i, 4).Value) Then
                 n = n + 1
-                pl(n) = CDbl(ws.Cells(i,3).Value)
-                qs(n) = CDbl(ws.Cells(i,4).Value)
+                pl(n) = CDbl(ws.Cells(i, 3).Value)
+                qs(n) = CDbl(ws.Cells(i, 4).Value)
             End If
         End If
     Next i
@@ -194,9 +194,9 @@ Private Function GetQs_Interp(abaco As String, curva As String, _
     ' Bubble sort per pl crescente
     For i = 1 To n - 1
         For j = 1 To n - i
-            If pl(j) > pl(j+1) Then
-                tmp=pl(j): pl(j)=pl(j+1): pl(j+1)=tmp
-                tmp=qs(j): qs(j)=qs(j+1): qs(j+1)=tmp
+            If pl(j) > pl(j + 1) Then
+                tmp = pl(j): pl(j) = pl(j + 1): pl(j + 1) = tmp
+                tmp = qs(j): qs(j) = qs(j + 1): qs(j + 1) = tmp
             End If
         Next j
     Next i
@@ -204,9 +204,9 @@ Private Function GetQs_Interp(abaco As String, curva As String, _
     ' Interpolazione lineare interna
     ' (range gia controllato in GetQs, qui siamo sicuramente dentro)
     For i = 1 To n - 1
-        If pl_MPa >= pl(i) And pl_MPa <= pl(i+1) Then
+        If pl_MPa >= pl(i) And pl_MPa <= pl(i + 1) Then
             GetQs_Interp = qs(i) + (pl_MPa - pl(i)) * _
-                           (qs(i+1) - qs(i)) / (pl(i+1) - pl(i))
+                           (qs(i + 1) - qs(i)) / (pl(i + 1) - pl(i))
             Exit Function
         End If
     Next i
@@ -236,11 +236,11 @@ End Function
 ' Restituisce il valore medio dell intervallo consigliato da Bustamante-Doix.
 ' L utente puo sovrascriverlo nella colonna "alpha usato" di DATI_INPUT.
 '
-' Valori (da Tabella 1 Bustamante-Doix 1985):
-'   SG:  IRS=1.55  IGU=1.22
-'   AL:  IRS=1.70  IGU=1.18
-'   MC:  IRS=1.80  IGU=1.15
-'   RA:  IRS=1.20  IGU=1.10
+' Valori (medie degli intervalli di Tabella 1 Bustamante-Doix 1985):
+'   SG:  IRS=1.60  IGU=1.25  (media ghiaia/sabbia grossa/media/fine/limosa)
+'   AL:  IRS=1.70  IGU=1.15  (media limo/argilla)
+'   MC:  IRS=1.80  IGU=1.15  (media Marna, Marno-calcare, Creta alterata o frammentata)
+'   RA:  IRS=1.20  IGU=1.10  (roccia alterata o frammentata)
 ' =============================================================================
 Function GetAlpha(tipoTerreno As String, tipoIniezione As String) As Double
 
@@ -252,13 +252,13 @@ Function GetAlpha(tipoTerreno As String, tipoIniezione As String) As Double
 
     Select Case abc
         Case "SG"
-            If inj = "IRS" Then GetAlpha = 1.55 Else GetAlpha = 1.22
+            If inj = "IRS" Then GetAlpha = 1.8 Else GetAlpha = 1.35
         Case "AL"
-            If inj = "IRS" Then GetAlpha = 1.70 Else GetAlpha = 1.18
+            If inj = "IRS" Then GetAlpha = 1.7 Else GetAlpha = 1.15
         Case "MC"
-            If inj = "IRS" Then GetAlpha = 1.80 Else GetAlpha = 1.15
+            If inj = "IRS" Then GetAlpha = 1.8 Else GetAlpha = 1.15
         Case "RA"
-            If inj = "IRS" Then GetAlpha = 1.20 Else GetAlpha = 1.10
+            If inj = "IRS" Then GetAlpha = 1.2 Else GetAlpha = 1.1
         Case Else
             GetAlpha = CVErr(xlErrNA)
     End Select
@@ -270,53 +270,43 @@ End Function
 
 
 ' =============================================================================
-' GetVi_min  -  Volume minimo di iniezione consigliato (Bustamante-Doix, Tab. 1)
+' GetKvi  -  Coefficiente Vi/Vs medio (Bustamante-Doix, Tab. 1)
 '
 ' Argomenti:
 '   tipoTerreno    As String : "SG", "AL", "MC", "RA"
 '   tipoIniezione  As String : "IRS" oppure "IGU"
-'   Vs_m3          As Double : volume teorico del bulbo [m3] = pi*Ds^2/4*ls
 '
-' Restituisce Vi,min = k * Vs  [m3]
+' Restituisce k tale che Vi,min = k * Vs  [-]
 '
-' Coefficienti k (da Tabella 1 Bustamante-Doix 1985):
+' Valori (medie degli intervalli di Tabella 1):
 '   SG:  IRS=1.50  IGU=1.50
-'   AL:  IRS=2.00  IGU=1.50
-'   MC:  IRS=1.75  IGU=1.50
-'   RA:  IRS=1.30  IGU=1.30
+'   AL:  IRS=2.38  IGU=1.63  (media limo/argilla)
+'   MC:  IRS=2.88  IGU=2.88  (media compatto/fratturato, no distinzione IRS/IGU)
+'   RA:  IRS=1.65  IGU=1.65  (media fessurato/fratturato, no distinzione IRS/IGU)
 ' =============================================================================
-Function GetVi_min(tipoTerreno As String, tipoIniezione As String, _
-                   Vs_m3 As Double) As Double
-
+Function GetKvi(tipoTerreno As String, tipoIniezione As String) As Variant
     On Error GoTo ErrHandler
-
     Dim abc As String, inj As String, k As Double
     abc = UCase(Trim(tipoTerreno))
     inj = UCase(Trim(tipoIniezione))
-
     Select Case abc
-        Case "SG": k = 1.50   ' uguale per IRS e IGU
+        Case "SG"
+            k = 1.5
         Case "AL"
-            If inj = "IRS" Then k = 2.00 Else k = 1.50
+            If inj = "IRS" Then k = 2.375 Else k = 1.625
         Case "MC"
-            If inj = "IRS" Then k = 1.75 Else k = 1.50
-        Case "RA": k = 1.30   ' uguale per IRS e IGU
+            k = 2.875
+        Case "RA"
+            k = 1.65
         Case Else
-            GetVi_min = CVErr(xlErrNA)
+            GetKvi = CVErr(xlErrNA)
             Exit Function
     End Select
-
-    If Vs_m3 <= 0 Then
-        GetVi_min = 0
-    Else
-        GetVi_min = k * Vs_m3
-    End If
-
+    GetKvi = k
     Exit Function
 ErrHandler:
-    GetVi_min = CVErr(xlErrValue)
+    GetKvi = CVErr(xlErrValue)
 End Function
-
 
 ' =============================================================================
 ' GetPl_fromNSPT  -  Converte N_SPT in p_l [MPa]
@@ -347,9 +337,9 @@ Function GetPl_fromNSPT(tipoTerreno As String, nspt As Double) As Double
     End If
 
     Select Case UCase(Trim(tipoTerreno))
-        Case "SG": GetPl_fromNSPT = 0.0500 * nspt
+        Case "SG": GetPl_fromNSPT = 0.05 * nspt
         Case "AL": GetPl_fromNSPT = 0.0667 * nspt
-        Case "MC": GetPl_fromNSPT = 0.0500 * nspt
+        Case "MC": GetPl_fromNSPT = 0.05 * nspt
         Case "RA"
             ' Non applicabile: la prova SPT non e affidabile
             ' per rocce alterate. Inserire p_l direttamente.
