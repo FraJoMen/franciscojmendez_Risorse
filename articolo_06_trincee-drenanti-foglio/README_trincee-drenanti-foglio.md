@@ -33,7 +33,6 @@ Questo strumento accompagna l'articolo tecnico pubblicato su [franciscojmendez.c
 | `Abaco_Tempi_T50-n1` | ✅ | Abaco dei tempi caratteristici T50 per n = 1 |
 | `Abaco_Tempi_T50-n2,5` | ✅ | Abaco dei tempi caratteristici T50 per n = 2.5 |
 | `Abaco_Portata` | ✅ | Abaco del fattore di portata adimensionale q |
-| `DB_Abachi` | 🔒 nascosto | Database delle coordinate digitalizzate dagli abachi originali (Desideri et al., 1997) |
 
 ---
 
@@ -88,7 +87,7 @@ Il repository offre due percorsi:
 |---|---|
 | n = H/H₀ | 1 — 1.5 — 2.5 — 4 |
 | d = D/H₀ | 0.5 — 1 — 1.5 — 2 |
-| S/H₀ | 0.5 – 4 (intervallo degli abachi) |
+| S/H₀ | 0.5 – 6 (intervallo degli abachi) |
 
 Valori fuori intervallo restituiscono `#N/A`. Per coppie (n, d) non coincidenti con i punti discreti disponibili, si raccomanda di scegliere la combinazione più prossima in senso conservativo.
 
