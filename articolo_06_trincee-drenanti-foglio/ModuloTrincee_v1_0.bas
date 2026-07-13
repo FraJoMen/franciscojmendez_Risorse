@@ -333,21 +333,21 @@ Private Function TLookup(ByVal tipo As String, ByVal nVal As Double, ByVal dVal 
     TLookup = True
 
     If tipo = "T50" And Abs(nVal - 1#) < TOL And Abs(dVal - 0.5) < TOL Then
-        xMin = 0.487: xMax = 6.003
-        knots = Array(xMin, xMin, xMin, xMin, 1.036103, 3.309614, xMax, xMax, xMax, xMax)
-        coef = Array(-2.76089534, -1.81403305, -0.6822056, -0.62888476, -0.662216, -0.65872688)
+        xMin = 0.487: xMax = 5.994
+        knots = Array(xMin, xMin, xMin, xMin, 1.028206, 3.271635, xMax, xMax, xMax, xMax)
+        coef = Array(-2.81712701, -2.11462624, -1.27929248, -1.20095732, -1.25529053, -1.23731729)
     ElseIf tipo = "T50" And Abs(nVal - 1#) < TOL And Abs(dVal - 1#) < TOL Then
-        xMin = 0.484: xMax = 6#
-        knots = Array(xMin, xMin, xMin, xMin, 0.792061, 2.721681, xMax, xMax, xMax, xMax)
-        coef = Array(-2.69648223, -1.84144584, -0.64705307, -0.35262756, -0.49464053, -0.46001051)
+        xMin = 0.48: xMax = 5.99
+        knots = Array(xMin, xMin, xMin, xMin, 0.859236, 3.316708, xMax, xMax, xMax, xMax)
+        coef = Array(-2.78563217, -2.05122586, -1.09786364, -1.07880442, -1.10391355, -1.09504429)
     ElseIf tipo = "T90" And Abs(nVal - 1#) < TOL And Abs(dVal - 0.5) < TOL Then
-        xMin = 0.498: xMax = 6.013
-        knots = Array(xMin, xMin, xMin, xMin, 1.553947, 4.272008, xMax, xMax, xMax, xMax)
-        coef = Array(-1.2493052, -0.21297843, 0.68045281, 0.60400063, 0.66241861, 0.62568415)
+        xMin = 0.498: xMax = 5.942
+        knots = Array(xMin, xMin, xMin, xMin, 1.64297, xMax, xMax, xMax, xMax)
+        coef = Array(-1.68466706, -0.84838738, -0.04083293, -0.31716448, -0.26538603)
     ElseIf tipo = "T90" And Abs(nVal - 1#) < TOL And Abs(dVal - 1#) < TOL Then
-        xMin = 0.492: xMax = 6.008
-        knots = Array(xMin, xMin, xMin, xMin, 1.665461, 3.796127, xMax, xMax, xMax, xMax)
-        coef = Array(-1.23689244, -0.05869091, 0.59287275, 0.71113093, 0.68233148, 0.68113623)
+        xMin = 0.493: xMax = 5.997
+        knots = Array(xMin, xMin, xMin, xMin, 1.368356, 3.647312, xMax, xMax, xMax, xMax)
+        coef = Array(-1.69197586, -0.97294802, -0.28291265, -0.24493942, -0.22101172, -0.24215316)
     ElseIf tipo = "T50" And Abs(nVal - 2.5) < TOL And Abs(dVal - 0.5) < TOL Then
         xMin = 0.498: xMax = 5.97
         knots = Array(xMin, xMin, xMin, xMin, 1.14419, 3.144529, xMax, xMax, xMax, xMax)
@@ -390,14 +390,14 @@ Private Function TYRange(ByVal tipo As String, ByVal nVal As Double, ByVal dVal 
     ' Min/max REALI di T (campionati), usati per messaggi d'errore (GetAbacoYRange).
     TYRange = True
 
-    If tipo = "T50" And Abs(nVal - 1#) < TOL And Abs(dVal - 0.5) < TOL Then
-        yMin = 0.001734: yMax = 0.224485
+        If tipo = "T50" And Abs(nVal - 1#) < TOL And Abs(dVal - 0.5) < TOL Then
+        yMin = 0.001524: yMax = 0.05862
     ElseIf tipo = "T50" And Abs(nVal - 1#) < TOL And Abs(dVal - 1#) < TOL Then
-        yMin = 0.002011: yMax = 0.354867
+        yMin = 0.001638: yMax = 0.081413
     ElseIf tipo = "T90" And Abs(nVal - 1#) < TOL And Abs(dVal - 0.5) < TOL Then
-        yMin = 0.056324: yMax = 4.428267
+        yMin = 0.02067: yMax = 0.552763
     ElseIf tipo = "T90" And Abs(nVal - 1#) < TOL And Abs(dVal - 1#) < TOL Then
-        yMin = 0.057957: yMax = 4.87714
+        yMin = 0.020325: yMax = 0.587821
     ElseIf tipo = "T50" And Abs(nVal - 2.5) < TOL And Abs(dVal - 0.5) < TOL Then
         yMin = 0.001716: yMax = 0.220472
     ElseIf tipo = "T50" And Abs(nVal - 2.5) < TOL And Abs(dVal - 1#) < TOL Then
@@ -487,3 +487,5 @@ Private Function EvalBSpline(ByRef knots As Variant, ByRef coef As Variant, _
 
     EvalBSpline = d(k)
 End Function
+
+
